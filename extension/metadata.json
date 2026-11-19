@@ -1,0 +1,8 @@
+{
+  "uuid": "mnemo-pet@cs3306",
+  "name": "Mnemo Pet",
+  "description": "Desktop pet for GNOME Shell, driven by the petd daemon (mnemo-pet). Thin renderer: animation, speech bubble, menu, notification sound and desktop sensors.",
+  "shell-version": ["46", "47", "48", "49", "50"],
+  "url": "https://github.com/cs3306/mnemo-pet",
+  "version": 1
+}

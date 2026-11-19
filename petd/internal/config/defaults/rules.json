@@ -1,0 +1,45 @@
+[
+  {
+    "name": "click-react",
+    "on": "click",
+    "cooldown": 1,
+    "do": { "anim": "react", "prio": 40 }
+  },
+  {
+    "name": "double-click-happy",
+    "on": "double_click",
+    "do": { "anim": "happy", "say_any": ["嘿嘿~", "(｡･ω･｡)", "诶嘿"], "prio": 45 }
+  },
+  {
+    "name": "welcome-back",
+    "channel": "rule.welcome-back",
+    "label": "久别回来时打招呼",
+    "on": "active",
+    "match": { "idle_sec>=": 600 },
+    "do": { "anim": "wave", "say": "欢迎回来~", "prio": 40 }
+  },
+  {
+    "name": "notification-peek",
+    "channel": "rule.notification",
+    "label": "有新通知时探头提示",
+    "on": "notify",
+    "cooldown": 10,
+    "do": { "anim": "notify", "sound": "notify", "say": "{app} 有新消息", "prio": 50 }
+  },
+  {
+    "name": "example-lunch",
+    "enabled": false,
+    "on": "time",
+    "match": { "hm": "12:00" },
+    "do": { "anim": "wave", "say": "中午啦，该吃饭了", "sound": "alarm", "prio": 70 }
+  },
+  {
+    "name": "example-terminal-think",
+    "enabled": false,
+    "on": "focus",
+    "match": { "app~": "terminal" },
+    "cooldown": 120,
+    "prob": 0.3,
+    "do": { "anim": "think", "hold": 4000, "prio": 30 }
+  }
+]

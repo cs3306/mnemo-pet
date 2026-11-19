@@ -1,0 +1,39 @@
+{
+  "listen": ":23817",
+  "http_listen": ":23818",
+  "token": "",
+  "skin": "default",
+  "scale": 1.4,
+  "gravity": true,
+  "floor_margin": 0,
+  "bubble_ttl": 6000,
+  "idle_marks": [120, 600],
+  "sensors": {
+    "focus": true,
+    "focus_title": false,
+    "notify": true,
+    "notify_body": false
+  },
+  "sounds": {
+    "notify": "message-new-instant",
+    "alarm": "alarm-clock-elapsed",
+    "pop": "bell"
+  },
+  "behavior": {
+    "wander": true,
+    "min_gap_sec": 6,
+    "max_gap_sec": 20,
+    "walk_speed": 70,
+    "sleep_after_sec": 600,
+    "weights": { "blink": 50, "wander": 30, "sit": 20 }
+  },
+  "no_brain_replies": [
+    "（还没有接上大脑，只会发呆~）",
+    "（我现在听不懂话哦）"
+  ],
+  "location": null,
+  "plugins": {
+    "disabled": [],
+    "env": {}
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "reminder",
+  "description": "Timed reminders (daily / interval) and a pomodoro timer in the right-click menu.",
+  "command": ["python3", "-u", "main.py"],
+  "autostart": true
+}

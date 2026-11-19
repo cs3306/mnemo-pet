@@ -1,0 +1,6 @@
+{
+  "name": "brain-mnemo",
+  "description": "Optional LLM brain: sends typed text to mnemo (or any OpenAI-compatible endpoint). Exits quietly when BRAIN_URL is unset.",
+  "command": ["python3", "-u", "main.py"],
+  "autostart": true
+}

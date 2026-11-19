@@ -1,0 +1,27 @@
+.mnemo-pet-bubble {
+    background-color: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(107, 74, 58, 0.65);
+    border-radius: 14px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.mnemo-pet-bubble-text {
+    color: #3c2f2f;
+    font-size: 11pt;
+    max-width: 260px;
+}
+
+.mnemo-pet-entry {
+    width: 240px;
+    color: #3c2f2f;
+    caret-color: #3c2f2f;
+    background-color: rgba(255, 255, 255, 0.0);
+    border: none;
+    padding: 2px 4px;
+    font-size: 11pt;
+}
+
+.mnemo-pet-entry StLabel.hint-text {
+    color: rgba(60, 47, 47, 0.5);
+}

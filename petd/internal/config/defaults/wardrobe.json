@@ -1,0 +1,33 @@
+{
+  "enabled": true,
+  "use_skin_schedules": true,
+  "entries": [
+    {
+      "name": "example-dusk-to-dawn",
+      "enabled": false,
+      "skin": "night",
+      "priority": 60,
+      "when": { "from": "sunset", "to": "sunrise" }
+    },
+    {
+      "name": "example-weekend-morning",
+      "enabled": false,
+      "skin": "default",
+      "when": { "weekdays": [6, 7], "from": "09:00", "to": "12:00" }
+    },
+    {
+      "name": "example-birthday",
+      "enabled": false,
+      "skin": "christmas",
+      "priority": 90,
+      "when": { "dates": ["06-15"] }
+    },
+    {
+      "name": "example-mid-autumn",
+      "enabled": false,
+      "skin": "default",
+      "priority": 80,
+      "when": { "holidays": ["mid_autumn", "lunar_new_year"] }
+    }
+  ]
+}

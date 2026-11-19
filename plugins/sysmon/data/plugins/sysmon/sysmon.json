@@ -1,0 +1,64 @@
+{
+  "interval_sec": 30,
+  "cooldown_min": 10,
+  "load_per_cpu": 1.5,
+  "mem_used_pct": 92,
+  "temp_c": 88,
+  "disk_paths": [
+    "/data"
+  ],
+  "alert_say": {
+    "load": "CPU 好忙呀……（loadavg {value:.1f}）",
+    "mem": "内存快满了！（已用 {value:.0f}%）",
+    "temp": "好烫好烫！（{value:.0f}°C）"
+  },
+  "reports": {
+    "summary": {
+      "label": "资源概况（综合）",
+      "every_min": 30,
+      "anim": "wave"
+    },
+    "cpu": {
+      "label": "CPU 使用率",
+      "every_min": 10,
+      "say": "CPU 使用率 {cpu:.0f}%",
+      "anim": "think"
+    },
+    "mem": {
+      "label": "内存使用",
+      "every_min": 10,
+      "say": "内存 {mem_used_gb:.1f}/{mem_total_gb:.1f} GB（{mem:.0f}%）",
+      "anim": "think"
+    },
+    "disk": {
+      "label": "磁盘空间",
+      "every_min": 60,
+      "say": "磁盘已用 {disk:.0f}%，剩 {disk_free_gb:.0f} GB",
+      "anim": "think"
+    },
+    "temp": {
+      "label": "温度",
+      "every_min": 15,
+      "say": "现在 {temp:.0f}°C",
+      "anim": "think"
+    },
+    "load": {
+      "label": "系统负载",
+      "every_min": 15,
+      "say": "负载 {load:.2f}（每核）",
+      "anim": "think"
+    },
+    "uptime": {
+      "label": "开机时长",
+      "every_min": 120,
+      "say": "已经开机 {uptime} 啦",
+      "anim": "sit"
+    },
+    "battery": {
+      "label": "电池电量",
+      "every_min": 30,
+      "say": "电池 {battery:.0f}%",
+      "anim": "think"
+    }
+  }
+}

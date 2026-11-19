@@ -1,0 +1,43 @@
+# mnemo-pet core (petd) + bundled plugins.
+# The GNOME Shell extension runs on the desktop (see README) and connects to
+# the published port below.
+#
+#   mkdir -p data && cp .env.example .env   # first time
+#   docker compose up -d --build
+services:
+  petd:
+    image: ${PET_IMAGE:-cs3306/mnemo-pet:latest}
+    build:
+      context: .
+      args:
+        VERSION: ${PET_VERSION:-dev}
+    container_name: mnemo-pet
+    restart: unless-stopped
+    # Run as your own user so ./data stays editable. Set PET_UID/PET_GID in .env.
+    user: "${PET_UID:-1000}:${PET_GID:-1000}"
+    environment:
+      TZ: ${TZ:-UTC}
+      PET_TOKEN: ${PET_TOKEN:-}
+      # Same port number inside and outside, taken from .env (see tools/mkenv.py).
+      PET_PORT: ${PET_PORT:-23817}
+      PET_HTTP_PORT: ${PET_HTTP_PORT:-23818}
+      # Optional LLM brain (plugin "brain-mnemo"). Leave BRAIN_URL empty to run without one.
+      BRAIN_URL: ${BRAIN_URL:-}
+      BRAIN_KEY: ${BRAIN_KEY:-}
+      BRAIN_MODEL: ${BRAIN_MODEL:-default}
+      BRAIN_SEND_SYSTEM: ${BRAIN_SEND_SYSTEM:-1}
+    ports:
+      # Bound to loopback on purpose: the protocol has no encryption.
+      - "127.0.0.1:${PET_PORT:-23817}:${PET_PORT:-23817}"
+      - "127.0.0.1:${PET_HTTP_PORT:-23818}:${PET_HTTP_PORT:-23818}"
+    volumes:
+      # config.json, rules.json, plugin data (reminders.json, ...). Edit freely.
+      - ./data:/data
+      # Custom skins; shared with the extension, which reads the same folder.
+      - ${HOME}/.local/share/mnemo-pet/skins:/data/skins:ro
+    # To let the brain plugin reach a mnemo container in another compose project:
+    #   networks: [mnemo]
+    # networks:
+    #   mnemo:
+    #     external: true
+    #     name: <the docker network mnemo is on>

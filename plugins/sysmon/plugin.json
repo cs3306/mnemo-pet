@@ -1,0 +1,10 @@
+{
+  "name": "sysmon",
+  "description": "Periodic CPU/memory/disk/temperature/uptime/battery reports (user-switchable, off by default) plus alerts when the machine is under stress.",
+  "command": [
+    "python3",
+    "-u",
+    "main.py"
+  ],
+  "autostart": true
+}
