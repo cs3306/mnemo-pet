@@ -1,0 +1,59 @@
+diff --git a/petd/internal/core/channels.go b/petd/internal/core/channels.go
+--- a/petd/internal/core/channels.go
++++ b/petd/internal/core/channels.go
+@@ -130,7 +130,7 @@
+ 
+ // channelMenus builds the "what the pet says" menu. Groups named "<machine> · <topic>"
+ // (sysmon on several machines) get one collapsible entry per machine, so the menu
+-// stays short; everything else goes under a single "说话内容" entry.
++// stays short; everything else (reminders, greetings) goes under "提醒与问候", listed first.
+ func (c *Core) channelMenus() []proto.MenuItem {
+ 	type section struct {
+ 		label string
+@@ -146,7 +146,7 @@
+ 		}
+ 		sec := secs[machine]
+ 		if sec == nil {
+-			label := "说话内容"
++			label := "提醒与问候"
+ 			if machine != "" {
+ 				label = machine + " · 说话内容"
+ 			}
+diff --git a/petd/internal/core/channels_test.go b/petd/internal/core/channels_test.go
+--- a/petd/internal/core/channels_test.go
++++ b/petd/internal/core/channels_test.go
+@@ -115,7 +115,7 @@
+ 	c.registerChannel(proto.Channel{ID: "c", Label: "C", Group: "homelab · 系统告警"})
+ 	c.registerChannel(proto.Channel{ID: "d", Label: "D", Group: "S600 · 系统播报"})
+ 	ms := c.channelMenus()
+-	if len(ms) != 3 || ms[0].Label != "说话内容" {
++	if len(ms) != 3 || ms[0].Label != "提醒与问候" {
+ 		t.Fatalf("%+v", ms)
+ 	}
+ 	for _, m := range ms {
+diff --git a/plugins/reminder/main.py b/plugins/reminder/main.py
+--- a/plugins/reminder/main.py
++++ b/plugins/reminder/main.py
+@@ -12,7 +12,7 @@
+ 
+ GROUP = "提醒"
+ 
+-# Every item may have "id" and "label". Each becomes a switch under "说话内容 → 提醒"
++# Every item may have "id" and "label". Each becomes a switch under "提醒与问候 → 提醒"
+ # (channel reminder.<id>), so the user can mute single reminders from the menu.
+ # "enabled" here is the default state of that switch.
+ DEFAULT = {
+diff --git a/plugins/sysmon/main.py b/plugins/sysmon/main.py
+--- a/plugins/sysmon/main.py
++++ b/plugins/sysmon/main.py
+@@ -30,7 +30,9 @@
+ # entry are then prefixed so they do not collide with the default instance.
+ NAME = os.environ.get("SYSMON_NAME", "").strip()
+ NS = f"{NAME}." if NAME else ""
+-GP = f"{NAME} · " if NAME else ""
++# Without a name the group still says which machine it is, so the menu can tell it apart
++# from the generic reminders ("本机" = the machine petd/this plugin runs on). Ids stay unprefixed.
++GP = f"{NAME or '本机'} · "
+ TAG = f"[{NAME}] " if NAME else ""  # prefix of everything the pet says
+ REPORT_GROUP = GP + "系统播报"
+ ALERT_GROUP = GP + "系统告警"

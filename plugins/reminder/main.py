@@ -12,7 +12,7 @@ from petplugin import Plugin, log  # noqa: E402
 
 GROUP = "提醒"
 
-# Every item may have "id" and "label". Each becomes a switch under "说话内容 → 提醒"
+# Every item may have "id" and "label". Each becomes a switch under "提醒与问候 → 提醒"
 # (channel reminder.<id>), so the user can mute single reminders from the menu.
 # "enabled" here is the default state of that switch.
 DEFAULT = {

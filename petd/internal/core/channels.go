@@ -130,7 +130,7 @@ func (c *Core) channelList() []ChannelInfo {
 
 // channelMenus builds the "what the pet says" menu. Groups named "<machine> · <topic>"
 // (sysmon on several machines) get one collapsible entry per machine, so the menu
-// stays short; everything else goes under a single "说话内容" entry.
+// stays short; everything else (reminders, greetings) goes under "提醒与问候", listed first.
 func (c *Core) channelMenus() []proto.MenuItem {
 	type section struct {
 		label string
@@ -146,7 +146,7 @@ func (c *Core) channelMenus() []proto.MenuItem {
 		}
 		sec := secs[machine]
 		if sec == nil {
-			label := "说话内容"
+			label := "提醒与问候"
 			if machine != "" {
 				label = machine + " · 说话内容"
 			}

@@ -30,7 +30,9 @@ from petplugin import Plugin, log  # noqa: E402
 # entry are then prefixed so they do not collide with the default instance.
 NAME = os.environ.get("SYSMON_NAME", "").strip()
 NS = f"{NAME}." if NAME else ""
-GP = f"{NAME} · " if NAME else ""
+# Without a name the group still says which machine it is, so the menu can tell it apart
+# from the generic reminders ("本机" = the machine petd/this plugin runs on). Ids stay unprefixed.
+GP = f"{NAME or '本机'} · "
 TAG = f"[{NAME}] " if NAME else ""  # prefix of everything the pet says
 REPORT_GROUP = GP + "系统播报"
 ALERT_GROUP = GP + "系统告警"

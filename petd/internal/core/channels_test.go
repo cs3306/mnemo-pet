@@ -115,7 +115,7 @@ func TestChannelMenuOneEntryPerMachine(t *testing.T) {
 	c.registerChannel(proto.Channel{ID: "c", Label: "C", Group: "homelab · 系统告警"})
 	c.registerChannel(proto.Channel{ID: "d", Label: "D", Group: "S600 · 系统播报"})
 	ms := c.channelMenus()
-	if len(ms) != 3 || ms[0].Label != "说话内容" {
+	if len(ms) != 3 || ms[0].Label != "提醒与问候" {
 		t.Fatalf("%+v", ms)
 	}
 	for _, m := range ms {
