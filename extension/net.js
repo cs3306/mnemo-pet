@@ -65,6 +65,13 @@ export class Net {
                 this._scheduleRetry();
                 return;
             }
+            // SocketClient.set_timeout() above also becomes the I/O timeout of
+            // the connected socket, so an idle connection (petd sends nothing
+            // for a few seconds) would be dropped and reconnected over and over.
+            // Keep it for connecting only; an established link has no timeout.
+            try {
+                conn.get_socket().set_timeout(0);
+            } catch (e) { /* not a socket connection */ }
             this._conn = conn;
             this._out = conn.get_output_stream();
             this._in = new Gio.DataInputStream({base_stream: conn.get_input_stream()});

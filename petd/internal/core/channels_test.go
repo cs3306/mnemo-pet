@@ -98,9 +98,30 @@ func TestChannelMenuGroupsWithHeaders(t *testing.T) {
 	c, _, _ := newTestCore(t, `[]`)
 	c.registerChannel(proto.Channel{ID: "a", Label: "A", Group: "G1", Default: true})
 	c.registerChannel(proto.Channel{ID: "b", Label: "B", Group: "G2"})
-	m, ok := c.channelMenu()
-	if !ok || len(m.Children) != 4 || m.Children[0].Type != "header" || m.Children[1].Type != "switch" || !m.Children[1].Checked || m.Children[3].Checked {
+	ms := c.channelMenus()
+	if len(ms) != 1 {
+		t.Fatalf("%+v", ms)
+	}
+	m := ms[0]
+	if len(m.Children) != 4 || m.Children[0].Type != "header" || m.Children[1].Type != "switch" || !m.Children[1].Checked || m.Children[3].Checked {
 		t.Fatalf("%+v", m)
+	}
+}
+
+func TestChannelMenuOneEntryPerMachine(t *testing.T) {
+	c, _, _ := newTestCore(t, `[]`)
+	c.registerChannel(proto.Channel{ID: "a", Label: "A", Group: "互动", Default: true})
+	c.registerChannel(proto.Channel{ID: "b", Label: "B", Group: "homelab · 系统播报"})
+	c.registerChannel(proto.Channel{ID: "c", Label: "C", Group: "homelab · 系统告警"})
+	c.registerChannel(proto.Channel{ID: "d", Label: "D", Group: "S600 · 系统播报"})
+	ms := c.channelMenus()
+	if len(ms) != 3 || ms[0].Label != "说话内容" {
+		t.Fatalf("%+v", ms)
+	}
+	for _, m := range ms {
+		if m.Label == "homelab · 说话内容" && (len(m.Children) != 4 || m.Children[0].Label != "系统告警" && m.Children[0].Label != "系统播报") {
+			t.Fatalf("%+v", m)
+		}
 	}
 }
 

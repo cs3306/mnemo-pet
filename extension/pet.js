@@ -171,7 +171,7 @@ export class Pet {
     // remote-desktop virtual monitor not created yet). Never return null: fall
     // back to the first monitor, then to the stage size; 'monitors-changed'
     // re-places the pet once a real monitor shows up.
-    _monitor() {
+    _primary() {
         const lm = Main.layoutManager;
         const m = lm.primaryMonitor ?? lm.monitors?.[0];
         if (m)
@@ -183,8 +183,38 @@ export class Pet {
         };
     }
 
-    _workArea() {
-        const m = this._monitor();
+    /** The monitor the pet is on (by its centre), so it can live on any screen. */
+    _monitor() {
+        const mons = Main.layoutManager.monitors;
+        if (!mons || mons.length < 2 || !this.actor)
+            return this._primary();
+        const cx = this.actor.x + this._w / 2;
+        const cy = this.actor.y + this._h / 2;
+        let best = null, bestD = Infinity;
+        for (const m of mons) {
+            const dx = cx < m.x ? m.x - cx : cx > m.x + m.width ? cx - (m.x + m.width) : 0;
+            const dy = cy < m.y ? m.y - cy : cy > m.y + m.height ? cy - (m.y + m.height) : 0;
+            const d = dx * dx + dy * dy;
+            if (d < bestD) { bestD = d; best = m; }
+        }
+        return best ?? this._primary();
+    }
+
+    /** Bounding box of all monitors; the pet may be dragged anywhere inside it. */
+    _desktop() {
+        const mons = Main.layoutManager.monitors;
+        if (!mons || mons.length < 2)
+            return this._primary();
+        let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+        for (const m of mons) {
+            x0 = Math.min(x0, m.x); y0 = Math.min(y0, m.y);
+            x1 = Math.max(x1, m.x + m.width); y1 = Math.max(y1, m.y + m.height);
+        }
+        return {x: x0, y: y0, width: x1 - x0, height: y1 - y0};
+    }
+
+    _workArea(mon) {
+        const m = mon ?? this._monitor();
         if (!m.synthetic) {
             try {
                 return Main.layoutManager.getWorkAreaForMonitor(m.index);
@@ -200,8 +230,9 @@ export class Pet {
 
     /** Put the pet on the floor, near the right edge, on first start. */
     placeInitially() {
-        const wa = this._workArea();
-        this.actor.set_position(Math.round(wa.x + wa.width * 0.75 - this._w / 2), Math.round(this._floorY()));
+        const wa = this._workArea(this._primary());
+        this.actor.set_position(Math.round(wa.x + wa.width * 0.75 - this._w / 2),
+            Math.round(wa.y + wa.height - this._h - this._floorMargin));
     }
 
     keepOnScreen() {
@@ -426,7 +457,7 @@ export class Pet {
                 this._io.event('drag_start');
                 this.play('drag', true);
             }
-            const m = this._monitor();
+            const m = this._desktop();
             this.actor.set_position(
                 Math.round(clamp(p.ox + ex - p.ex, m.x, m.x + m.width - this._w)),
                 Math.round(clamp(p.oy + ey - p.ey, m.y, m.y + m.height - this._h)));
@@ -437,6 +468,7 @@ export class Pet {
             const count = p.count;
             this._endCapture();
             if (moved) {
+                this.keepOnScreen();
                 this._io.event('drag_end', {x: Math.round(this.actor.x), y: Math.round(this.actor.y)});
                 this._fall();
             } else {

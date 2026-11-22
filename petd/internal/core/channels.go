@@ -3,6 +3,7 @@ package core
 import (
 	"log/slog"
 	"sort"
+	"strings"
 
 	"mnemo-pet/internal/proto"
 	"mnemo-pet/internal/state"
@@ -127,21 +128,47 @@ func (c *Core) channelList() []ChannelInfo {
 	return out
 }
 
-func (c *Core) channelMenu() (proto.MenuItem, bool) {
-	list := c.channelList()
-	if len(list) == 0 {
-		return proto.MenuItem{}, false
+// channelMenus builds the "what the pet says" menu. Groups named "<machine> · <topic>"
+// (sysmon on several machines) get one collapsible entry per machine, so the menu
+// stays short; everything else goes under a single "说话内容" entry.
+func (c *Core) channelMenus() []proto.MenuItem {
+	type section struct {
+		label string
+		kids  []proto.MenuItem
+		last  string
 	}
-	var kids []proto.MenuItem
-	last := "\x00"
-	for _, ch := range list {
-		if ch.Group != last {
-			kids = append(kids, proto.MenuItem{Type: "header", Label: ch.Group})
-			last = ch.Group
+	var order []string
+	secs := map[string]*section{}
+	for _, ch := range c.channelList() {
+		machine, topic := "", ch.Group
+		if i := strings.Index(ch.Group, " · "); i > 0 {
+			machine, topic = ch.Group[:i], ch.Group[i+len(" · "):]
 		}
-		kids = append(kids, proto.MenuItem{ID: "channel:" + ch.ID, Type: "switch", Label: ch.Label, Checked: ch.Enabled})
+		sec := secs[machine]
+		if sec == nil {
+			label := "说话内容"
+			if machine != "" {
+				label = machine + " · 说话内容"
+			}
+			sec = &section{label: label, last: "\x00"}
+			secs[machine] = sec
+			if machine == "" {
+				order = append([]string{machine}, order...)
+			} else {
+				order = append(order, machine)
+			}
+		}
+		if topic != sec.last {
+			sec.kids = append(sec.kids, proto.MenuItem{Type: "header", Label: topic})
+			sec.last = topic
+		}
+		sec.kids = append(sec.kids, proto.MenuItem{ID: "channel:" + ch.ID, Type: "switch", Label: ch.Label, Checked: ch.Enabled})
 	}
-	return proto.MenuItem{Label: "说话内容", Children: kids}, true
+	out := make([]proto.MenuItem, 0, len(order))
+	for _, m := range order {
+		out = append(out, proto.MenuItem{Label: secs[m].label, Children: secs[m].kids})
+	}
+	return out
 }
 
 // Channels lists channels with state (goroutine-safe).

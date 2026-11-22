@@ -18,6 +18,9 @@ services:
     environment:
       TZ: ${TZ:-UTC}
       PET_TOKEN: ${PET_TOKEN:-}
+      # Name of this machine in the pet's menu and speech ("[S600] CPU 12%").
+      # Empty = unnamed. Run more sysmon copies on other machines with their own name.
+      SYSMON_NAME: ${SYSMON_NAME:-}
       # Same port number inside and outside, taken from .env (see tools/mkenv.py).
       PET_PORT: ${PET_PORT:-23817}
       PET_HTTP_PORT: ${PET_HTTP_PORT:-23818}

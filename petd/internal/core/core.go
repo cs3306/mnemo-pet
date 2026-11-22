@@ -554,9 +554,7 @@ func (c *Core) sendMenu() {
 	if m, ok := c.skinMenu(); ok {
 		items = append(items, m)
 	}
-	if m, ok := c.channelMenu(); ok {
-		items = append(items, m)
-	}
+	items = append(items, c.channelMenus()...)
 	items = append(items, c.menu...)
 	c.publish()
 	c.sink.Render(map[string]any{"t": "menu", "items": items})

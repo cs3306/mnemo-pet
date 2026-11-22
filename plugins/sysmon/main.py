@@ -25,8 +25,15 @@ import time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_sdk"))
 from petplugin import Plugin, log  # noqa: E402
 
-REPORT_GROUP = "系统播报"
-ALERT_GROUP = "系统告警"
+# Several machines can feed one pet: run extra copies elsewhere with
+# SYSMON_NAME=<machine> (e.g. "homelab"). Name, channel ids, groups and the menu
+# entry are then prefixed so they do not collide with the default instance.
+NAME = os.environ.get("SYSMON_NAME", "").strip()
+NS = f"{NAME}." if NAME else ""
+GP = f"{NAME} · " if NAME else ""
+TAG = f"[{NAME}] " if NAME else ""  # prefix of everything the pet says
+REPORT_GROUP = GP + "系统播报"
+ALERT_GROUP = GP + "系统告警"
 
 # Template fields: {cpu} {mem} {mem_used_gb} {mem_total_gb} {disk} {disk_free_gb}
 # {temp} {load} {uptime} {battery}. A report whose fields are unavailable on
@@ -56,7 +63,7 @@ DEFAULT = {
     },
 }
 
-p = Plugin("sysmon")
+p = Plugin(f"sysmon-{NAME}" if NAME else "sysmon")
 cfg = p.load_json("sysmon.json", DEFAULT)
 cfg.setdefault("reports", DEFAULT["reports"])  # configs from v1 have no reports yet
 _cfg_mtime = 0.0
@@ -254,8 +261,8 @@ def reload_cfg():
 
 
 def declared_ids():
-    ids = [f"report.{r}" for r in cfg.get("reports", {})]
-    ids += [f"alert.{k}" for k in ("load", "mem", "temp")]
+    ids = [f"report.{NS}{r}" for r in cfg.get("reports", {})]
+    ids += [f"alert.{NS}{k}" for k in ("load", "mem", "temp")]
     return ids
 
 
@@ -267,10 +274,10 @@ def declare_channels():
     for gone in _declared - want:
         p.channel_remove(gone)
     for rid, spec in cfg.get("reports", {}).items():
-        p.channel(f"report.{rid}", spec.get("label", rid), REPORT_GROUP, False)
+        p.channel(f"report.{NS}{rid}", spec.get("label", rid), REPORT_GROUP, False)
     labels = {"load": "CPU 负载过高时提醒", "mem": "内存快满时提醒", "temp": "温度过高时提醒"}
     for k, label in labels.items():
-        p.channel(f"alert.{k}", label, ALERT_GROUP, True)
+        p.channel(f"alert.{NS}{k}", label, ALERT_GROUP, True)
     _declared.clear()
     _declared.update(want)
 
@@ -298,7 +305,7 @@ def check_alerts():
         last_alert[kind] = now
         shown = v * (os.cpu_count() or 1) if kind == "load" else v
         say = cfg.get("alert_say", cfg.get("say", {})).get(kind, kind).format(value=shown)
-        p.act(say=say, anim=anim, sound="notify", prio=60, channel=f"alert.{kind}")
+        p.act(say=TAG + say, anim=anim, sound="notify", prio=60, channel=f"alert.{NS}{kind}")
         p.emit("alert", {"kind": kind, "value": round(v, 2)})
 
 
@@ -315,8 +322,8 @@ def check_reports():
         m = m or metrics()
         text = render_report(rid, spec, m)
         if text:
-            p.act(say=text, anim=spec.get("anim", "think"), prio=45, hold=2500,
-                  channel=f"report.{rid}")
+            p.act(say=TAG + text, anim=spec.get("anim", "think"), prio=45, hold=2500,
+                  channel=f"report.{NS}{rid}")
 
 
 def tick():
@@ -328,13 +335,13 @@ def tick():
 def report_now():
     """Menu action: speak the summary right now, regardless of channel settings."""
     text = summary_text(metrics())
-    p.act(say=text or "暂时读不到系统数据", anim="wave", prio=65)
+    p.act(say=TAG + (text or "暂时读不到系统数据"), anim="wave", prio=65)
 
 
 @p.on_connect
 def _connected():
     declare_channels()
-    p.menu_add("report_now", "汇报资源概况")
+    p.menu_add("report_now", f"{GP}汇报资源概况")
 
 
 @p.on("menu.click")
